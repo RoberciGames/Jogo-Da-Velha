@@ -10,23 +10,49 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* Variáveis de Tema para Preto/Branco */
+        :root {
+            --bg-gradient: radial-gradient(circle at center, #0b0f19 0%, #02040a 100%);
+            --text-main: #f8fafc; /* slate-50 */
+            --text-muted: #94a3b8; /* slate-400 */
+            --card-bg: rgba(10, 15, 30, 0.75);
+            --card-border: rgba(99, 102, 241, 0.15);
+            --cell-bg: rgba(4, 7, 18, 0.6);
+            --input-bg: #090d16;
+            --input-border: #334155;
+            --instructions-color: #64748b;
+        }
+
+        body.theme-light {
+            --bg-gradient: radial-gradient(circle at center, #ffffff 0%, #cbd5e1 100%);
+            --text-main: #0f172a; /* slate-900 */
+            --text-muted: #475569; /* slate-600 */
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(99, 102, 241, 0.35);
+            --cell-bg: rgba(226, 232, 240, 0.8);
+            --input-bg: #f1f5f9;
+            --input-border: #cbd5e1;
+            --instructions-color: #475569;
+        }
+
         body {
             font-family: 'Rajdhani', sans-serif;
-            background: radial-gradient(circle at center, #0b0f19 0%, #02040a 100%);
+            background: var(--bg-gradient);
+            color: var(--text-main);
             overflow-x: hidden;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
         .title-font {
             font-family: 'Orbitron', sans-serif;
         }
 
-        /* Efeito de Vidro Futurista */
+        /* Efeito de Vidro Futurista usando variáveis CSS */
         .cyber-card {
-            background: rgba(10, 15, 30, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(99, 102, 241, 0.15);
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(99, 102, 241, 0.05);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(99, 102, 241, 0.05);
+            transition: background 0.5s ease, border-color 0.5s ease;
         }
 
         /* Brilhos néon personalizados */
@@ -42,8 +68,8 @@
 
         /* Estilo das células */
         .game-cell {
-            background: rgba(4, 7, 18, 0.6);
-            border: 1px solid rgba(99, 102, 241, 0.1);
+            background: var(--cell-bg);
+            border: 1px solid var(--card-border);
             position: relative;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
@@ -53,6 +79,19 @@
             border-color: rgba(99, 102, 241, 0.5);
             box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.2), 0 0 10px rgba(99, 102, 241, 0.1);
             transform: translateY(-2px);
+        }
+
+        /* Configuração de Inputs dinâmicos de texto */
+        .cyber-input {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-main);
+            transition: background-color 0.5s, border-color 0.3s, color 0.5s;
+        }
+
+        .cyber-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
         }
 
         /* Animação para peças prestes a sumirem no modo Infinito */
@@ -99,6 +138,13 @@
             background: linear-gradient(135deg, #db2777 0%, #ec4899 100%) !important;
             box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
             border-color: #f472b6 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-active-purple {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+            border-color: #818cf8 !important;
             color: #ffffff !important;
         }
 
@@ -153,7 +199,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen text-slate-100 flex flex-col items-center justify-center p-4 relative">
+<body class="min-h-screen flex flex-col items-center justify-center p-4 relative">
 
     <!-- Canvas de Efeitos Especiais de Vitória -->
     <canvas id="confetti-canvas"></canvas>
@@ -165,45 +211,73 @@
             <h1 class="title-font text-4xl md:text-5xl font-black tracking-widest bg-gradient-to-r from-cyan-400 via-indigo-400 to-pink-500 bg-clip-text text-transparent">
                 GALO SUPREMO
             </h1>
-            <p class="text-[11px] text-slate-400 mt-1 tracking-widest uppercase">Edição de Alta Dificuldade & Tática Dinâmica</p>
+            <p class="text-[11px] text-slate-400 mt-1 tracking-widest uppercase" style="color: var(--text-muted)">Edição de Alta Dificuldade & Tática Dinâmica</p>
         </header>
 
         <!-- Configurações e Modos de Jogo -->
         <div class="cyber-card rounded-2xl p-4 flex flex-col gap-4">
-            <!-- Linha 1: Modo de Jogo -->
-            <div>
-                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-2 text-center">Modo de Operação</span>
-                <div class="grid grid-cols-2 gap-2">
-                    <button id="mode-pvp" onclick="setGameMode('pvp')" class="btn-active-cyan py-2 px-3 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-900 border border-slate-800 hover:bg-slate-800 transition duration-200">
-                        👥 Jogador VS Jogador
-                    </button>
-                    <button id="mode-cpu" onclick="setGameMode('cpu')" class="py-2 px-3 rounded-lg text-xs font-semibold uppercase tracking-wider bg-slate-900 border border-slate-800 hover:bg-slate-800 transition duration-200">
-                        🤖 Desafiar CPU
-                    </button>
+            <!-- Linha 1: Modo de Jogo & Cores (Tema) -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <span class="text-[10px] uppercase font-bold tracking-wider block mb-2 text-center" style="color: var(--text-muted)">Modo de Jogo</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button id="mode-pvp" onclick="setGameMode('pvp')" class="btn-active-cyan py-2 px-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            👥 PVP
+                        </button>
+                        <button id="mode-cpu" onclick="setGameMode('cpu')" class="py-2 px-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            🤖 CPU
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <span class="text-[10px] uppercase font-bold tracking-wider block mb-2 text-center" style="color: var(--text-muted)">Paleta / Tema</span>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button id="theme-dark" onclick="setTheme('dark')" class="btn-active-purple py-2 px-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            🌑 Preto
+                        </button>
+                        <button id="theme-light" onclick="setTheme('light')" class="py-2 px-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
+                            ☀️ Branco
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Linha 2: Mecânica Adicional (Aumenta a Dificuldade drasticamente) -->
-            <div class="grid grid-cols-2 gap-4 border-t border-slate-800 pt-3">
+            <!-- Customização de Nomes dos Jogadores -->
+            <div class="border-t border-slate-800 pt-3" style="border-color: var(--card-border)">
+                <span class="text-[10px] uppercase font-bold tracking-wider block mb-2 text-center" style="color: var(--text-muted)">Identidades dos Competidores</span>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9px] uppercase font-bold block mb-1" style="color: var(--text-muted)">Jogador X</label>
+                        <input type="text" id="name-input-x" value="Jogador X" oninput="updatePlayerNames()" class="cyber-input w-full py-1.5 px-2.5 rounded-lg text-xs outline-none font-bold" />
+                    </div>
+                    <div>
+                        <label id="label-player-o" class="text-[9px] uppercase font-bold block mb-1" style="color: var(--text-muted)">Jogador O</label>
+                        <input type="text" id="name-input-o" value="Jogador O" oninput="updatePlayerNames()" class="cyber-input w-full py-1.5 px-2.5 rounded-lg text-xs outline-none font-bold" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linha 2: Mecânica Adicional -->
+            <div class="grid grid-cols-2 gap-4 border-t border-slate-800 pt-3" style="border-color: var(--card-border)">
                 <!-- Toggle Modo Infinito -->
                 <div>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1.5 text-center">Modo Peça Infinita</span>
+                    <span class="text-[10px] uppercase font-bold tracking-wider block mb-1.5 text-center" style="color: var(--text-muted)">Modo Peça Infinita</span>
                     <button id="toggle-infinite" onclick="toggleInfiniteMode()" class="w-full py-1.5 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-900 border border-red-500/20 text-slate-400 hover:border-red-500/50 transition">
                         OFF (Clássico)
                     </button>
                 </div>
                 <!-- Toggle Temporizador Blitz -->
                 <div>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1.5 text-center">Temporizador Blitz (5s)</span>
+                    <span class="text-[10px] uppercase font-bold tracking-wider block mb-1.5 text-center" style="color: var(--text-muted)">Temporizador Blitz (5s)</span>
                     <button id="toggle-blitz" onclick="toggleBlitzMode()" class="w-full py-1.5 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-900 border border-yellow-500/20 text-slate-400 hover:border-yellow-500/50 transition">
                         OFF
                     </button>
                 </div>
             </div>
 
-            <!-- Linha 3: Dificuldade da CPU (Visível apenas se modo CPU ativo) -->
-            <div id="difficulty-container" class="hidden border-t border-slate-800 pt-3 transition-all duration-300">
-                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-2 text-center">Inteligência do Processador</span>
+            <!-- Linha 3: Dificuldade da CPU -->
+            <div id="difficulty-container" class="hidden border-t border-slate-800 pt-3 transition-all duration-300" style="border-color: var(--card-border)">
+                <span class="text-[10px] uppercase font-bold tracking-wider block mb-2 text-center" style="color: var(--text-muted)">Inteligência do Processador</span>
                 <div class="grid grid-cols-3 gap-2">
                     <button id="diff-easy" onclick="setDifficulty('easy')" class="py-1.5 px-2 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 hover:bg-slate-800 transition">
                         Fácil
@@ -221,15 +295,15 @@
         <!-- Painel de Pontuação Néon -->
         <div class="grid grid-cols-3 gap-3 text-center">
             <div class="cyber-card rounded-xl p-3 border-l-4 border-cyan-500">
-                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Jogador X</p>
+                <p id="label-score-x" class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--text-muted)">Jogador X</p>
                 <p id="score-x" class="text-2xl font-black text-cyan-400 mt-1">0</p>
             </div>
             <div class="cyber-card rounded-xl p-3 border-l-4 border-slate-500">
-                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Empates</p>
-                <p id="score-ties" class="text-2xl font-black text-slate-300 mt-1">0</p>
+                <p class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--text-muted)">Empates</p>
+                <p id="score-ties" class="text-2xl font-black text-slate-400 mt-1">0</p>
             </div>
             <div class="cyber-card rounded-xl p-3 border-l-4 border-pink-500">
-                <p id="player-o-title" class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Jogador O</p>
+                <p id="label-score-o" class="text-[10px] uppercase font-bold tracking-wider" style="color: var(--text-muted)">Jogador O</p>
                 <p id="score-o" class="text-2xl font-black text-pink-400 mt-1">0</p>
             </div>
         </div>
@@ -237,7 +311,7 @@
         <!-- Barra de Progresso do Tempo e Painel de Estado -->
         <div class="cyber-card rounded-xl overflow-hidden flex flex-col">
             <div class="py-2.5 px-4 text-center">
-                <span id="game-status" class="text-sm font-semibold tracking-wide text-slate-100 uppercase">
+                <span id="game-status" class="text-sm font-semibold tracking-wide uppercase">
                     A carregar sistema...
                 </span>
             </div>
@@ -274,7 +348,7 @@
             <button onclick="resetBoard()" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm tracking-wider uppercase bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 transition-all shadow-lg shadow-indigo-500/20">
                 🔄 Próxima Rodada
             </button>
-            <button onclick="resetFullGame()" class="py-3 px-4 rounded-xl font-bold text-xs tracking-wider uppercase bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 active:scale-95 transition-all text-slate-300">
+            <button onclick="resetFullGame()" class="py-3 px-4 rounded-xl font-bold text-xs tracking-wider uppercase bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 active:scale-95 transition-all" style="background-color: var(--cell-bg); color: var(--text-main); border-color: var(--card-border)">
                 Reiniciar Tudo
             </button>
         </div>
@@ -282,7 +356,7 @@
     </div>
 
     <!-- Notas de Ajuda Informativa sobre Mecânicas -->
-    <div id="instructions-tip" class="w-full max-w-sm mt-5 px-4 text-center text-xs text-slate-500 leading-relaxed">
+    <div id="instructions-tip" class="w-full max-w-sm mt-5 px-4 text-center text-xs leading-relaxed" style="color: var(--instructions-color)">
         * No <span class="text-red-400 font-semibold">Modo Peça Infinita</span>, a tua 1ª peça desaparecerá quando jogares a 4ª peça. Fica atento à peça a piscar!
     </div>
 
@@ -310,7 +384,6 @@
                 const now = audioCtx.currentTime;
 
                 if (type === 'click-x') {
-                    // Som agudo sintetizado e limpo (Cian / X)
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(440, now);
                     osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
@@ -319,7 +392,6 @@
                     osc.start(now);
                     osc.stop(now + 0.1);
                 } else if (type === 'click-o') {
-                    // Som encorpado e descendente (Pink / O)
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(554.37, now);
                     osc.frequency.exponentialRampToValueAtTime(277.18, now + 0.12);
@@ -328,7 +400,6 @@
                     osc.start(now);
                     osc.stop(now + 0.15);
                 } else if (type === 'warning-fade') {
-                    // Aviso sonoro sutil de dissipação de peça
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(293.66, now);
                     osc.frequency.linearRampToValueAtTime(220, now + 0.2);
@@ -337,7 +408,6 @@
                     osc.start(now);
                     osc.stop(now + 0.22);
                 } else if (type === 'victory') {
-                    // Acorde triunfante ascendente rápido de vitória
                     const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 1046.50];
                     notes.forEach((freq, index) => {
                         const o = audioCtx.createOscillator();
@@ -354,7 +424,6 @@
                         o.stop(now + index * 0.06 + 0.45);
                     });
                 } else if (type === 'draw') {
-                    // Acorde de empate levemente robótico
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(180, now);
                     osc.frequency.linearRampToValueAtTime(90, now + 0.45);
@@ -363,7 +432,6 @@
                     osc.start(now);
                     osc.stop(now + 0.45);
                 } else if (type === 'error') {
-                    // Som robusto de rejeição/bloqueio
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(120, now);
                     osc.frequency.linearRampToValueAtTime(60, now + 0.25);
@@ -373,7 +441,7 @@
                     osc.stop(now + 0.25);
                 }
             } catch (e) {
-                // Navegador com áudio bloqueado/incompatível
+                // Audio compatibilidade falhou silenciosamente
             }
         }
 
@@ -395,7 +463,7 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * -canvas.height - 20;
                 this.size = Math.random() * 6 + 3;
-                this.color = Math.random() > 0.5 ? '#06b6d4' : '#ec4899'; // Partículas néon azul/rosa
+                this.color = Math.random() > 0.5 ? '#06b6d4' : '#ec4899';
                 this.speedY = Math.random() * 4 + 2;
                 this.speedX = Math.random() * 3 - 1.5;
                 this.rotation = Math.random() * 360;
@@ -422,6 +490,7 @@
             }
         }
 
+        // Inicializador de partículas
         function initConfetti() {
             particles = [];
             for (let i = 0; i < 80; i++) {
@@ -439,7 +508,6 @@
             requestAnimationFrame(animateConfetti);
         }
 
-        // Ativa os confetes e desliga após um tempo
         function startConfetti() {
             confettiActive = true;
             initConfetti();
@@ -458,24 +526,28 @@
         let gameMode = "pvp"; // 'pvp' ou 'cpu'
         let cpuDifficulty = "impossible"; // 'easy', 'medium', 'impossible'
         
-        // Mecânicas adicionais de dificuldade
+        // Mecânicas adicionais
         let infiniteMode = false;
         let blitzMode = false;
         
-        // Rastreamento histórico de movimentos individuais para o modo infinito
-        let movesHistory = { "X": [], "O": [] }; 
+        // Histórico de nomes customizados
+        let playerNames = {
+            "X": "Jogador X",
+            "O": "Jogador O"
+        };
         
+        let movesHistory = { "X": [], "O": [] }; 
         let scores = { x: 0, ties: 0, o: 0 };
 
-        // Variáveis de controle de tempo (Blitz)
+        // Variáveis do Temporizador
         let blitzTimer = null;
-        let timeRemaining = 100; // percentagem de 0 a 100
-        const BlitzMaxSeconds = 5; // 5 segundos por rodada
+        let timeRemaining = 100;
+        const BlitzMaxSeconds = 5;
 
         const winningConditions = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Linhas
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colunas
-            [0, 4, 8], [2, 4, 6]             // Diagonais
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
         ];
 
         // Elementos do DOM
@@ -489,7 +561,14 @@
         const difficultyContainer = document.getElementById("difficulty-container");
         const blitzProgressEl = document.getElementById("blitz-progress");
 
-        // SVGs das peças pré-renderizados com néon correspondente
+        // Inputs de nomes
+        const nameInputX = document.getElementById("name-input-x");
+        const nameInputO = document.getElementById("name-input-o");
+        const labelPlayerO = document.getElementById("label-player-o");
+        const labelScoreX = document.getElementById("label-score-x");
+        const labelScoreO = document.getElementById("label-score-o");
+
+        // SVGs de jogo
         const svgX = `
             <svg class="w-4/5 h-4/5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" viewBox="0 0 100 100">
                 <line x1="20" y1="20" x2="80" y2="80" stroke="currentColor" stroke-width="12" stroke-linecap="round" class="draw-path" />
@@ -503,23 +582,64 @@
             </svg>
         `;
 
+        // --- GERENCIADOR DE NOMES DOS JOGADORES ---
+        window.updatePlayerNames = function() {
+            // Impedir campos vazios
+            const nameX = nameInputX.value.trim() !== "" ? nameInputX.value.trim() : "Jogador X";
+            let nameO = nameInputO.value.trim() !== "" ? nameInputO.value.trim() : "Jogador O";
+
+            if (gameMode === "cpu") {
+                nameO = `CPU (${getDifficultyLabel()})`;
+                nameInputO.value = nameO;
+            }
+
+            playerNames["X"] = nameX;
+            playerNames["O"] = nameO;
+
+            // Atualizar labels do placar
+            labelScoreX.textContent = nameX;
+            labelScoreO.textContent = nameO;
+
+            updateStatus();
+        };
+
+        // --- SISTEMA DE SELEÇÃO DE TEMA (Preto / Branco) ---
+        window.setTheme = function(theme) {
+            playSound('click-x');
+            const body = document.body;
+            const btnDark = document.getElementById("theme-dark");
+            const btnLight = document.getElementById("theme-light");
+
+            if (theme === 'light') {
+                body.classList.add("theme-light");
+                btnLight.classList.add("btn-active-purple");
+                btnDark.classList.remove("btn-active-purple");
+            } else {
+                body.classList.remove("theme-light");
+                btnDark.classList.add("btn-active-purple");
+                btnLight.classList.remove("btn-active-purple");
+            }
+        };
+
         function updateStatus() {
             if (!gameActive) return;
             
-            // Ativa o temporizador do zero se o modo Blitz estiver ativo
             if (blitzMode) {
                 resetAndStartBlitzTimer();
             } else {
                 blitzProgressEl.style.transform = `scaleX(0)`;
             }
 
+            const currentName = playerNames[currentPlayer];
+            const colorClass = currentPlayer === "X" ? "text-cyan-400" : "text-pink-500";
+
             if (gameMode === "pvp") {
-                statusText.innerHTML = `VEZ DO JOGADOR <span class="text-cyan-400 font-bold">${currentPlayer}</span>`;
+                statusText.innerHTML = `VEZ DE <span class="${colorClass} font-bold">${currentName.toUpperCase()}</span>`;
             } else {
                 if (currentPlayer === "X") {
-                    statusText.innerHTML = `TUA VEZ (<span class="text-cyan-400 font-bold">JOGADOR X</span>)`;
+                    statusText.innerHTML = `TUA VEZ (<span class="text-cyan-400 font-bold">${currentName.toUpperCase()}</span>)`;
                 } else {
-                    statusText.innerHTML = `<span class="text-pink-500 font-bold">A CPU</span> ESTÁ A ANALISAR...`;
+                    statusText.innerHTML = `<span class="text-pink-500 font-bold">${currentName.toUpperCase()}</span> ESTÁ A ANALISAR...`;
                 }
             }
         }
@@ -558,11 +678,17 @@
 
             if (mode === 'cpu') {
                 difficultyContainer.classList.remove("hidden");
-                playerOTitle.textContent = `CPU (${getDifficultyLabel()})`;
+                nameInputO.disabled = true;
+                labelPlayerO.textContent = "Jogador O (Bloqueado p/ CPU)";
             } else {
                 difficultyContainer.classList.add("hidden");
-                playerOTitle.textContent = "Jogador O";
+                nameInputO.disabled = false;
+                labelPlayerO.textContent = "Jogador O";
+                if (nameInputO.value.startsWith("CPU")) {
+                    nameInputO.value = "Jogador O";
+                }
             }
+            updatePlayerNames();
             resetFullGame();
         };
 
@@ -573,9 +699,7 @@
             document.getElementById("diff-medium").classList.toggle("btn-active-pink", diff === 'medium');
             document.getElementById("diff-impossible").classList.toggle("btn-active-pink", diff === 'impossible');
             
-            if (gameMode === 'cpu') {
-                playerOTitle.textContent = `CPU (${getDifficultyLabel()})`;
-            }
+            updatePlayerNames();
             resetFullGame();
         };
 
@@ -593,7 +717,6 @@
             cell.addEventListener("click", () => {
                 const index = parseInt(cell.getAttribute("data-cell"));
 
-                // Ignora cliques se o tabuleiro estiver ocupado, se o jogo terminou ou se for o turno da CPU
                 if (board[index] !== "" || !gameActive || (gameMode === "cpu" && currentPlayer === "O")) {
                     if (board[index] !== "" && gameActive) {
                         playSound('error');
@@ -607,7 +730,6 @@
             });
         });
 
-        // Registrar uma jogada no tabuleiro
         function makeMove(index) {
             board[index] = currentPlayer;
             const cell = document.querySelector(`[data-cell="${index}"]`);
@@ -616,11 +738,9 @@
             
             playSound(currentPlayer === 'X' ? 'click-x' : 'click-o');
 
-            // Lógica do Modo Infinito (Fade-out da peça mais antiga)
             if (infiniteMode) {
                 movesHistory[currentPlayer].push(index);
 
-                // Se o jogador colocou a sua 4ª peça, a 1ª é dissipada do sistema
                 if (movesHistory[currentPlayer].length > 3) {
                     const oldestIndex = movesHistory[currentPlayer].shift();
                     board[oldestIndex] = "";
@@ -629,15 +749,12 @@
                     oldestCell.classList.remove("occupied");
                 }
 
-                // Avisar visualmente qual peça do próximo jogador irá desaparecer após a próxima jogada dele
                 const nextPlayer = currentPlayer === "X" ? "O" : "X";
-                // Limpar todos os avisos de fade existentes
                 cells.forEach(c => {
                     const firstChild = c.firstElementChild;
                     if (firstChild) firstChild.classList.remove("fade-warning");
                 });
 
-                // Se o próximo jogador já tiver 3 peças no tabuleiro, a mais antiga começa a piscar como aviso
                 if (movesHistory[nextPlayer].length === 3) {
                     const targetIndex = movesHistory[nextPlayer][0];
                     const targetCell = document.querySelector(`[data-cell="${targetIndex}"]`);
@@ -648,7 +765,6 @@
                 }
             }
 
-            // Validar vencedor ou empates
             const winCondition = checkWinner();
             if (winCondition) {
                 drawVictoryLine(winCondition);
@@ -661,14 +777,12 @@
                 return;
             }
 
-            // Alternar jogador
             currentPlayer = currentPlayer === "X" ? "O" : "X";
             updateStatus();
 
-            // Desencadear jogada da CPU se ativo
             if (gameActive && gameMode === "cpu" && currentPlayer === "O") {
-                stopBlitzTimer(); // CPU não gasta o temporizador do jogador humano
-                setTimeout(makeCpuMove, 600); // Latência realista para a CPU "pensar"
+                stopBlitzTimer();
+                setTimeout(makeCpuMove, 600);
             }
         }
 
@@ -681,10 +795,8 @@
             if (cpuDifficulty === "easy") {
                 bestMoveIndex = getRandomMove();
             } else if (cpuDifficulty === "medium") {
-                // 50% de probabilidade de jogar com inteligência ótima e 50% de aleatoriedade
                 bestMoveIndex = Math.random() < 0.55 ? getBestMove() : getRandomMove();
             } else {
-                // "impossible" -> Minimax Adaptado ao Modo Infinito
                 bestMoveIndex = getBestMove();
             }
 
@@ -704,14 +816,12 @@
 
             for (let i = 0; i < 9; i++) {
                 if (board[i] === "") {
-                    // Simular jogada no clone do tabuleiro virtual
                     let tempBoard = [...board];
                     let tempHistory = {
                         "X": [...movesHistory["X"]],
                         "O": [...movesHistory["O"]]
                     };
 
-                    // Aplicar jogada simulada no clone com as regras do modo Infinito
                     tempBoard[i] = "O";
                     if (infiniteMode) {
                         tempHistory["O"].push(i);
@@ -732,7 +842,6 @@
             return bestMove;
         }
 
-        // Minimax adaptado que compreende o desaparecimento de peças (Modo Infinito)
         function minimax(currBoard, currHistory, depth, isMaxing) {
             const score = evaluateBoardState(currBoard);
 
@@ -740,8 +849,6 @@
             if (score === -10) return score + depth;
             if (!currBoard.includes("")) return 0;
 
-            // Limite de profundidade para evitar chamadas de pilha recursivas infinitas
-            // Especialmente necessário no modo infinito onde o tabuleiro nunca se enche.
             if (depth >= 6) {
                 return score;
             }
@@ -805,13 +912,13 @@
             return 0;
         }
 
-        // --- GESTÃO DO TEMPO (BLITZ TIMER) ---
+        // --- GESTÃO DO TEMPO ---
         function resetAndStartBlitzTimer() {
             stopBlitzTimer();
             if (!blitzMode || !gameActive) return;
 
             timeRemaining = 100;
-            const step = 100; // actualizações a cada 100ms
+            const step = 100;
             const decPercent = (step / (BlitzMaxSeconds * 1000)) * 100;
 
             blitzTimer = setInterval(() => {
@@ -836,19 +943,17 @@
 
         function handleBlitzTimeout() {
             playSound('error');
+            const winnerName = playerNames[currentPlayer];
             
-            // Atribuir vitória à CPU ou forçar erro se o temporizador expirar
             if (gameMode === "cpu") {
                 if (currentPlayer === "X") {
-                    statusText.innerHTML = `TEMPO ESGOTADO! Perdeste a tua vez!`;
-                    // Passa a vez diretamente para a CPU
+                    statusText.innerHTML = `<span class="text-red-400 font-bold">${winnerName.toUpperCase()}</span> PERDEU A VEZ!`;
                     currentPlayer = "O";
                     updateStatus();
                     setTimeout(makeCpuMove, 600);
                 }
             } else {
-                // No modo PvP, muda apenas para o outro jogador ativo
-                statusText.innerHTML = `TEMPO ESGOTADO para o jogador ${currentPlayer}!`;
+                statusText.innerHTML = `TEMPO ESGOTADO PARA <span class="text-red-400 font-bold">${winnerName.toUpperCase()}</span>!`;
                 currentPlayer = currentPlayer === "X" ? "O" : "X";
                 updateStatus();
             }
@@ -861,7 +966,7 @@
                 if (board[condition[0]] !== "" &&
                     board[condition[0]] === board[condition[1]] &&
                     board[condition[1]] === board[condition[2]]) {
-                    return condition; // Retorna a condição vencedora
+                    return condition;
                 }
             }
             return null;
@@ -871,7 +976,6 @@
             return !board.includes("");
         }
 
-        // Linha Dinâmica de Vitória baseada nas coordenadas reais das células do tabuleiro
         function drawVictoryLine(winCondition) {
             const rectBoard = boardEl.getBoundingClientRect();
             const rectA = cells[winCondition[0]].getBoundingClientRect();
@@ -891,9 +995,8 @@
             line.setAttribute("y2", y2);
             line.setAttribute("stroke", strokeColor);
             
-            // Ativa animação
             line.style.animation = "none";
-            line.offsetHeight; // trigger reflow
+            line.offsetHeight;
             line.style.animation = null;
         }
 
@@ -902,23 +1005,23 @@
             stopBlitzTimer();
             blitzProgressEl.style.transform = `scaleX(0)`;
 
-            // Remover todas as animações de aviso pendentes
             cells.forEach(c => {
                 if (c.firstElementChild) c.firstElementChild.classList.remove("fade-warning");
             });
 
             if (winner === "Empate") {
-                statusText.innerHTML = `SISTEMA BLOQUEADO: EMPATE! 🫱🏼‍Gl`;
+                statusText.innerHTML = `SISTEMA BLOQUEADO: EMPATE! 🫱🏼‍🫲🏼`;
                 scores.ties++;
                 scoreTiesEl.textContent = scores.ties;
                 playSound('draw');
             } else {
+                const winnerName = playerNames[winner];
+                const colorClass = winner === "X" ? "text-cyan-400" : "text-pink-500";
+
                 if (gameMode === "cpu" && winner === "O") {
-                    statusText.innerHTML = `A CPU venceu a rodada! 🤖🎮`;
-                } else if (gameMode === "cpu" && winner === "X") {
-                    statusText.innerHTML = `SISTEMA SUPERADO: VENCESTE! 🎉🏆`;
+                    statusText.innerHTML = `<span class="text-pink-500 font-bold">${winnerName.toUpperCase()}</span> VENCEU A RODADA! 🤖🎮`;
                 } else {
-                    statusText.innerHTML = `JOGADOR <span class="${winner === 'X' ? 'text-cyan-400' : 'text-pink-500'} font-bold">${winner}</span> VENCEU A RODADA!`;
+                    statusText.innerHTML = `<span class="${colorClass} font-bold">${winnerName.toUpperCase()}</span> SUPEROU O DESAFIO! 🎉🏆`;
                 }
 
                 if (winner === "X") {
@@ -929,7 +1032,6 @@
                     scoreOEl.textContent = scores.o;
                 }
 
-                // Desencadear efeitos de vitória apenas para vencedores humanos
                 if (gameMode === "pvp" || winner === "X") {
                     startConfetti();
                     setTimeout(stopConfetti, 4000);
@@ -947,7 +1049,6 @@
             stopConfetti();
             stopBlitzTimer();
 
-            // Limpa a linha de vitória SVG
             const line = document.getElementById("victory-stroke");
             line.setAttribute("stroke", "transparent");
 
@@ -968,6 +1069,7 @@
         };
 
         // Inicializar aplicação
+        updatePlayerNames();
         updateStatus();
     </script>
 </body>
